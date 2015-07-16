@@ -41,7 +41,7 @@ programs: fastqc fastq-mcf kmc
 Data quality was visualised using fastqc:
 
 ```bash
-  for RawData in raw_dna/paired/*/*/*/*.fastq*?; do
+  for RawData in $(ls raw_dna/paired/*/*/*/*.fastq*?); do
       ProgDir=/home/armita/git_repos/emr_repos/tools/seq_tools/dna_qc
       echo $RawData;
       qsub $ProgDir/run_fastqc.sh $RawData
@@ -53,7 +53,7 @@ This was done with fastq-mcf
 
 
 ```bash
-  for StrainPath in raw_dna/paired/*/*; do
+  for StrainPath in $(ls raw_dna/paired/*/*); do
       ProgDir=/home/armita/git_repos/emr_repos/tools/seq_tools/rna_qc
       IlluminaAdapters=/home/armita/git_repos/emr_repos/tools/seq_tools/illumina_full_adapters.fa
       ReadsF=$(ls $StrainPath/F/*.fastq*)
@@ -67,7 +67,7 @@ This was done with fastq-mcf
 Data quality was visualised once again following trimming:
 
 ```bash
-  for RawData in qc_dna/paired/*/*/*/*.fastq*; do
+  for RawData in $(ls qc_dna/paired/*/*/*/*.fastq*); do
       ProgDir=/home/armita/git_repos/emr_repos/tools/seq_tools/dna_qc
       echo $RawData;
       qsub $ProgDir/run_fastqc.sh $RawData
@@ -79,7 +79,7 @@ kmer counting was performed using kmc.
 This allowed estimation of sequencing depth and total genome size:
 
 ```bash
-  for TrimPath in qc_dna/paired/*/*; do
+  for TrimPath in $(ls qc_dna/paired/*/*); do
       ProgDir=/home/armita/git_repos/emr_repos/tools/seq_tools/dna_qc
       TrimF=$(ls $TrimPath/F/*.fastq*)
       TrimR=$(ls $TrimPath/R/*.fastq*)
