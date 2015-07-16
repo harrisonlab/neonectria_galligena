@@ -79,10 +79,10 @@ kmer counting was performed using kmc.
 This allowed estimation of sequencing depth and total genome size:
 
 ```bash
-  for TrimPath in $(ls qc_dna/paired/*/*); do
+  for TrimPath in $(ls -d qc_dna/paired/*/*); do
       ProgDir=/home/armita/git_repos/emr_repos/tools/seq_tools/dna_qc
-      TrimF=$(ls $TrimPath/F/*.fastq*)
-      TrimR=$(ls $TrimPath/R/*.fastq*)
+      TrimF=$(ls $TrimPath/F/*.fastq.gz)
+      TrimR=$(ls $TrimPath/R/*.fastq.gz )
       echo $TrimF
       echo $TrimR
       qsub $ProgDir/kmc_kmer_counting.sh $TrimF $TrimR
