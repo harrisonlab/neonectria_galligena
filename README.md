@@ -53,7 +53,7 @@ This was done with fastq-mcf
 
 
 ```bash
-  for StrainPath in $(ls raw_dna/paired/*/*); do
+  for StrainPath in $(ls -d raw_dna/paired/*/*); do
       ProgDir=/home/armita/git_repos/emr_repos/tools/seq_tools/rna_qc
       IlluminaAdapters=/home/armita/git_repos/emr_repos/tools/seq_tools/illumina_full_adapters.fa
       ReadsF=$(ls $StrainPath/F/*.fastq*)
