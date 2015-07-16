@@ -22,13 +22,15 @@ Data was copied from the raw_data repository to a local directory for assembly
 and annotation.
 
 ```bash
-  cd /home/groups/harrisonlab/project_files/neonectria_ditissima
-  Species=
-  Strain=
+  cd /home/groups/harrisonlab/project_files/neonectria_galligena
+  Species=N.galligena
+  Strain=NG-R0905
   mkdir -p raw_dna/paired/$Species/$Strain/F
   mkdir -p raw_dna/paired/$Species/$Strain/R
-  cp /home/groups/harrisonlab/raw_data/raw_seq/<PATH_TO_F_READ> raw_dna/paired/$Species/$Strain/F/.
-  cp /home/groups/harrisonlab/raw_data/raw_seq/<PATH_TO_R_READ> raw_dna/paired/$Species/$Strain/R/.
+  cp /home/groups/harrisonlab/project_files/neonectria/NG-R0905_S4_L001_R1_001.fastq raw_dna/paired/$Species/$Strain/F/.
+  cp /home/groups/harrisonlab/project_files/neonectria/NG-R0905_S4_L001_R2_001.fastq raw_dna/paired/$Species/$Strain/R/.
+  gzip raw_dna/paired/N.galligena/NG-R0905/F/NG-R0905_S4_L001_R1_001.fastq
+  gzip raw_dna/paired/N.galligena/NG-R0905/R/NG-R0905_S4_L001_R2_001.fastq
 ```
 
 
@@ -39,7 +41,11 @@ programs: fastqc fastq-mcf kmc
 Data quality was visualised using fastqc:
 
 ```bash
-  
+  for RawData in raw_dna/paired/*/*/*/*.fastq*?; do
+      ProgDir=/home/armita/git_repos/emr_repos/tools/seq_tools/dna_qc
+      echo $RawData;
+      qsub $ProgDir/run_fastqc.sh $RawData
+  done
 ```
 
 Trimming was performed on data to trim adapters from sequences and remove poor quality data.
@@ -47,13 +53,25 @@ This was done with fastq-mcf
 
 
 ```bash
-
+  for StrainPath in raw_dna/paired/*/*; do
+      ProgDir=/home/armita/git_repos/emr_repos/tools/seq_tools/rna_qc
+      IlluminaAdapters=/home/armita/git_repos/emr_repos/tools/seq_tools/illumina_full_adapters.fa
+      ReadsF=$(ls $StrainPath/F/*.fastq*)
+      ReadsR=$(ls $StrainPath/R/*.fastq*)
+      echo $ReadsF
+      echo $ReadsR
+      qsub $ProgDir/rna_qc_fastq-mcf.sh $ReadsF $ReadsR $IlluminaAdapters DNA
+  done
 ```
 
 Data quality was visualised once again following trimming:
 
 ```bash
-
+  for RawData in qc_dna/paired/*/*/*/*.fastq*; do
+      ProgDir=/home/armita/git_repos/emr_repos/tools/seq_tools/dna_qc
+      echo $RawData;
+      qsub $ProgDir/run_fastqc.sh $RawData
+  done
 ```
 
 
@@ -61,7 +79,14 @@ kmer counting was performed using kmc.
 This allowed estimation of sequencing depth and total genome size:
 
 ```bash
-
+  for TrimPath in qc_dna/paired/*/*; do
+      ProgDir=/home/armita/git_repos/emr_repos/tools/seq_tools/dna_qc
+      TrimF=$(ls $TrimPath/F/*.fastq*)
+      TrimR=$(ls $TrimPath/R/*.fastq*)
+      echo $TrimF
+      echo $TrimR
+      qsub $ProgDir/kmc_kmer_counting.sh $TrimF $TrimR
+  done
 ```
 
 ** Estimated Genome Size is: **
@@ -75,6 +100,12 @@ A range of hash lengths were used and the best assembly selected for subsequent 
 
 
 ```bash
+  mkdir -p assembly/spades/N.galligena/NG-R0905
+  ProgDir=/home/armita/git_repos/emr_repos/tools/seq_tools/assemblers/spades
+  F_Read=raw_dna/paired/N.galligena/NG-R0905/F/NG-R0905_S4_L001_R1_001.fastq.gz
+  R_Read=raw_dna/paired/N.galligena/NG-R0905/R/NG-R0905_S4_L001_R2_001.fastq.gz
+  Outdir=assembly/spades/N.galligena/NG-R0905
+  qsub $ProgDir/submit_SPAdes.sh $F_Read $R_Read $Outdir correct
 
 ```
 
