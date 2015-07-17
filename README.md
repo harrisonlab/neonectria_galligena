@@ -126,7 +126,10 @@ Repeat masking was performed and used the following programs: Repeatmasker Repea
 The best assembly was used to perform repeatmasking
 
 ```bash
-
+  ProgDir=/home/armita/git_repos/emr_repos/tools/seq_tools/repeat_masking
+  BestAss=<PATH_TO_BEST_ASSEMBLY.fa>
+  qsub $ProgDir/rep_modeling.sh $BestAss
+  qsub $ProgDir/transposonPSI.sh $BestAss
 ```
 
 ** % bases maked by repeatmasker: **
@@ -143,19 +146,28 @@ Gene models were used to predict genes in the Neonectria genome. This used resul
 Quality of genome assemblies was assessed by looking for the gene space in the assemblies.
 
 ```bash
-
+  ProgDir=/home/armita/git_repos/emr_repos/tools/gene_prediction/cegma
+  Assembly=<PATH_TO_UNMASKED_ASSEMBLY.fa>
+  qsub $ProgDir/sub_cegma.sh $Genome dna
 ```
-
+The cegma completeness report gave an indication of the number of genes core
+eukaryotic genes were present:
 ** Number of cegma genes present and complete: **
 ** Number of cegma genes present and partial: **
 
 ##Gene prediction
 
 Gene prediction was performed for the neonectria genome.
-CEGMA genes were used as Hints for the location of CDS.
+CEGMA genes could be used as hints for the location of CDS.
+
+For the moment we shall just use the gene model trained to F. gramminearum.
+This model is from a closely related organism that is also plant pathogen.
 
 ```bash
-
+  ProgDir=/home/armita/git_repos/emr_repos/tools/gene_prediction/augustus
+  Assembly=<PATH_TO_UNMASKED_ASSEMBLY.fa>
+  GeneModel=fusarium_graminearum
+  qsub $ProgDir/submit_augustus.sh $GeneModel $Assembly
 ```
 
 ** Number of genes predicted: **
@@ -165,7 +177,9 @@ CEGMA genes were used as Hints for the location of CDS.
 Interproscan was used to give gene models functional annotations.
 
 ```bash
-
+  ProgDir=/home/armita/git_repos/emr_repos/tools/seq_tools/feature_annotation/interproscan/
+  Genes=<PATH_TO_AUGUSTUS GENES.aa>
+  $ProgDir/sub_interproscan.sh $Genes
 ```
 
 
