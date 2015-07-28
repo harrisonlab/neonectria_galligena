@@ -174,14 +174,32 @@ This model is from a closely related organism that is also plant pathogen.
 
 #Functional annotation
 
-Interproscan was used to give gene models functional annotations.
+Interproscan was used to give gene models functional annotations. Annotation was
+ run using the commands below:
+
+Note: This is a long-running script. As such, these commands were run using
+ 'screen' to allow jobs to be submitted and monitored in the background.
+ This allows the session to be disconnected and reconnected over time.
+
+Screen ouput detailing the progress of submission of interporscan jobs was
+redirected to a temporary output file named interproscan_submission.log .
+
 
 ```bash
+  screen -a
   ProgDir=/home/armita/git_repos/emr_repos/tools/seq_tools/feature_annotation/interproscan/
   Genes=<PATH_TO_AUGUSTUS GENES.aa>
   $ProgDir/sub_interproscan.sh $Genes
 ```
 
+Following interproscan annotation split files were combined using the following commands:
+
+```bash
+  ProgDir=/home/armita/git_repos/emr_repos/tools/seq_tools/feature_annotation/interproscan
+  PredGenes=<PATH_TO_AUGUSTUS GENES.aa>
+  InterProRaw=gene_pred/interproscan/<ORGANISM>/<STRAIN>/raw
+  $ProgDir/append_interpro.sh $PredGenes $InterProRaw
+```
 
 #Genomic analysis
 The first analysis was based upon BLAST searches for genes known to be involved in toxin production
