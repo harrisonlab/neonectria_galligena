@@ -99,7 +99,7 @@ Assembly was performed using: Velvet / Abyss / Spades
 A range of hash lengths were used and the best assembly selected for subsequent analysis
 
 
-```bash
+<!-- ```bash
   mkdir -p assembly/spades/N.galligena/NG-R0905
   ProgDir=/home/armita/git_repos/emr_repos/tools/seq_tools/assemblers/spades
   F_Read=raw_dna/paired/N.galligena/NG-R0905/F/NG-R0905_S4_L001_R1_001.fastq.gz
@@ -107,7 +107,23 @@ A range of hash lengths were used and the best assembly selected for subsequent 
   Outdir=assembly/spades/N.galligena/NG-R0905
   qsub $ProgDir/submit_SPAdes.sh $F_Read $R_Read $Outdir correct
 
+``` -->
+```bash
+  mkdir -p assembly/spades/N.galligena/R0905_v2
+  ProgDir=/home/armita/git_repos/emr_repos/tools/seq_tools/assemblers/spades
+  F_Read=assembly/spades/N.ditissima/NG-R0905/corrected/NG-R0905_qc_F.fastq.00.0_0.cor.fastq.gz
+  R_Read=assembly/spades/N.ditissima/NG-R0905/corrected/NG-R0905_qc_R.fastq.00.0_0.cor.fastq.gz
+  OutDir=assembly/spades/N.galligena/R0905_v2
+  qsub $ProgDir/submit_SPAdes.sh $F_Read $R_Read $OutDir only-assembler
 ```
+
+```bash
+  ProgDir=/home/armita/git_repos/emr_repos/tools/seq_tools/assemblers/assembly_qc
+  Assembly=assembly/spades/N.galligena/R0905_v2/filtered_contigs/contigs_min_500bp.fasta
+  Outdir=assembly/spades/N.galligena/R0905_v2/filtered_contigs
+  qsub $ProgDir/sub_quast.sh $Assembly $OutDir
+```
+
 
 Assemblies were summarised to allow the best assembly to be determined by eye.
 
@@ -118,6 +134,21 @@ Assemblies were summarised to allow the best assembly to be determined by eye.
   * N20:
   * Longest contig:
   **
+
+The assembled contigs were filtered to remove all contigs shorter than 1kb from
+the assembly. This was done using the following commands:
+
+```
+  mkdir -p assembly/spades/N.galligena/NG-R0905_filtered
+  ProgDir=/home/armita/git_repos/emr_repos/tools/seq_tools/assemblers/abyss
+  Assembly=assembly/spades/N.galligena/NG-R0905/scaffolds.fasta
+  AssFiltered=assembly/spades/N.galligena/NG-R0905/scaffolds_filtered_500.fasta
+  $ProgDir/filter_abyss_contigs.py $Assembly 500 > $AssFiltered
+  AssFiltered=assembly/spades/N.galligena/NG-R0905/scaffolds_filtered_1000.fasta
+  $ProgDir/filter_abyss_contigs.py $Assembly 1000 > $AssFiltered
+```  
+
+
 
 # Repeatmasking
 
