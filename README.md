@@ -111,14 +111,16 @@ A range of hash lengths were used and the best assembly selected for subsequent 
 ```bash
   mkdir -p assembly/spades/N.galligena/R0905_v2
   ProgDir=/home/armita/git_repos/emr_repos/tools/seq_tools/assemblers/spades
-  F_Read=assembly/spades/N.ditissima/NG-R0905/corrected/NG-R0905_qc_F.fastq.00.0_0.cor.fastq.gz
-  R_Read=assembly/spades/N.ditissima/NG-R0905/corrected/NG-R0905_qc_R.fastq.00.0_0.cor.fastq.gz
+  # F_Read=assembly/spades/N.ditissima/NG-R0905/corrected/NG-R0905_qc_F.fastq.00.0_0.cor.fastq.gz
+  # R_Read=assembly/spades/N.ditissima/NG-R0905/corrected/NG-R0905_qc_R.fastq.00.0_0.cor.fastq.gz
+  F_Read=raw_dna/paired/N.galligena/NG-R0905/F/NG-R0905_subset_F.fastq
+  R_Read=raw_dna/paired/N.galligena/NG-R0905/R/NG-R0905_subset_R.fastq
   OutDir=assembly/spades/N.galligena/R0905_v2
   qsub $ProgDir/submit_SPAdes.sh $F_Read $R_Read $OutDir only-assembler
 ```
 
 ```bash
-  ProgDir=/home/armita/git_repos/emr_repos/tools/seq_tools/assemblers/assembly_qc
+  ProgDir=/home/armita/git_repos/emr_repos/tools/seq_tools/assemblers/assembly_qc/quast
   Assembly=assembly/spades/N.galligena/R0905_v2/filtered_contigs/contigs_min_500bp.fasta
   Outdir=assembly/spades/N.galligena/R0905_v2/filtered_contigs
   qsub $ProgDir/sub_quast.sh $Assembly $OutDir
@@ -202,6 +204,16 @@ This model is from a closely related organism that is also plant pathogen.
 ```
 
 ** Number of genes predicted: **
+The difference in drunning conditions between ERM and Nz script were assessed by
+running assembly on the longest assembled contig.
+
+```bash
+  cat assembly/spades/neonectria_galligena/NG-R0905/assembly_v1/sorted_contigs.fa | head -n2 > assembly/spades/neonectria_galligena/NG-R0905/assembly_v1/longest_contig.fa
+  ProgDir=/home/armita/git_repos/emr_repos/tools/gene_prediction/augustus
+  Assembly=assembly/spades/neonectria_galligena/NG-R0905/assembly_v1/longest_contig.fa
+  GeneModel=fusarium
+  qsub $ProgDir/submit_augustus.sh $GeneModel $Assembly
+```
 
 #Functional annotation
 
@@ -248,6 +260,46 @@ Top BLAST hits were used to annotate gene models.
 ```bash
 
 ```
+
+following blasting PHIbase to the genome, the hits were filtered by effect on
+virulence.
+
+The following commands were used to do this:
+
+```
+  printf "header\n" > ../../phibase/v3.8/PHI_headers.csv
+  cat ../../phibase/v3.8/PHI_accessions.fa | grep '>' | cut -f1 | sed 's/>//g' | sed 's/\r//g' >> ../../phibase/v3.8/PHI_headers.csv
+  printf "effect\n" > ../../phibase/v3.8/PHI_virulence.csv
+  cat ../../phibase/v3.8/PHI_accessions.fa | grep '>' | cut -f1 | sed 's/>//g' | rev | cut -f1 -d '|' | rev  >> ../../phibase/v3.8/PHI_virulence.csv
+  paste -d '\t' ../../phibase/v3.8/PHI_headers.csv ../../phibase/v3.8/PHI_virulence.csv > ../../phibase/v3.8/PHI_headers_virulence.csv
+  paste -d '\t' ../../phibase/v3.8/PHI_headers.csv ../../phibase/v3.8/PHI_virulence.csv ../neonectria_ditissima/analysis/blast_homology/spades/N.ditissima/N.ditissima_PHI_accessions.fa_homologs.csv | cut -f-3,1185- > analysis/blast_homology/neonectria_galligena/NG-R0905/NG-R0905_PHIbase.csv
+  cat analysis/blast_homology/neonectria_galligena/NG-R0905/NG-R0905_PHIbase.csv | grep 'NODE_' | cut -f2 | sort | uniq -c | less
+```
+
+1  
+3 chemistry target
+32 Chemistry target
+8  effector (plant avirulence determinant)
+13 Effector (plant avirulence determinant)
+2 Enhanced antagonism
+8  increased virulence
+5  increased virulence (Hypervirulence)
+2 Increased virulence (hypervirulence)
+21 Increased virulence (Hypervirulence)
+84 Lethal
+13  loss of pathogenicity
+237 Loss of pathogenicity
+9  mixed outcome
+52  mixed outcome
+83 Mixed outcome
+66  reduced virulence
+12 reduced virulence
+696 Reduced virulence
+1 Reduced Virulence
+30  unaffected pathogenicity
+786 Unaffected pathogenicity
+1 Wild-type mutualism
+
 
 ** Blast results of note: **
   * 'Result A'
