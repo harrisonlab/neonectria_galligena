@@ -282,31 +282,32 @@ The following commands were used to do this:
   paste -d '\t' ../../phibase/v3.8/PHI_headers.csv ../../phibase/v3.8/PHI_virulence.csv ../neonectria_ditissima/analysis/blast_homology/spades/N.ditissima/N.ditissima_PHI_accessions.fa_homologs.csv | cut -f-3,1185- > analysis/blast_homology/neonectria_galligena/NG-R0905/NG-R0905_PHIbase.csv
   cat analysis/blast_homology/neonectria_galligena/NG-R0905/NG-R0905_PHIbase.csv | grep 'NODE_' | cut -f2 | sort | uniq -c | less
 ```
-
-1  
-3 chemistry target
-32 Chemistry target
-8  effector (plant avirulence determinant)
-13 Effector (plant avirulence determinant)
-2 Enhanced antagonism
-8  increased virulence
-5  increased virulence (Hypervirulence)
-2 Increased virulence (hypervirulence)
-21 Increased virulence (Hypervirulence)
-84 Lethal
-13  loss of pathogenicity
-237 Loss of pathogenicity
-9  mixed outcome
-52  mixed outcome
-83 Mixed outcome
-66  reduced virulence
-12 reduced virulence
-696 Reduced virulence
-1 Reduced Virulence
-30  unaffected pathogenicity
-786 Unaffected pathogenicity
-1 Wild-type mutualism
-
+results were:
+```
+  1  
+  3 chemistry target
+  32 Chemistry target
+  8  effector (plant avirulence determinant)
+  13 Effector (plant avirulence determinant)
+  2 Enhanced antagonism
+  8  increased virulence
+  5  increased virulence (Hypervirulence)
+  2 Increased virulence (hypervirulence)
+  21 Increased virulence (Hypervirulence)
+  84 Lethal
+  13  loss of pathogenicity
+  237 Loss of pathogenicity
+  9  mixed outcome
+  52  mixed outcome
+  83 Mixed outcome
+  66  reduced virulence
+  12 reduced virulence
+  696 Reduced virulence
+  1 Reduced Virulence
+  30  unaffected pathogenicity
+  786 Unaffected pathogenicity
+  1 Wild-type mutualism
+```
 
 ** Blast results of note: **
   * 'Result A'
