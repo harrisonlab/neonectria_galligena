@@ -200,7 +200,7 @@ This model is from a closely related organism that is also plant pathogen.
   ProgDir=/home/armita/git_repos/emr_repos/tools/gene_prediction/augustus
   Assembly=<PATH_TO_UNMASKED_ASSEMBLY.fa>
   GeneModel=fusarium_graminearum
-  qsub $ProgDir/submit_augustus.sh $GeneModel $Assembly
+  qsub $ProgDir/submit_augustus.sh $GeneModel $Assembly false
 ```
 
 ** Number of genes predicted: **
@@ -212,8 +212,16 @@ running assembly on the longest assembled contig.
   ProgDir=/home/armita/git_repos/emr_repos/tools/gene_prediction/augustus
   Assembly=assembly/spades/neonectria_galligena/NG-R0905/assembly_v1/longest_contig.fa
   GeneModel=fusarium
-  qsub $ProgDir/submit_augustus.sh $GeneModel $Assembly
+  qsub $ProgDir/submit_augustus.sh $GeneModel $Assembly true
 ```
+
+```bash
+  ProgDir=/home/armita/git_repos/emr_repos/tools/gene_prediction/augustus
+  Assembly=../neonectria_ditissima/repeat_masked/spades/N.ditissima/NG-R0905_repmask/N.ditissima_contigs_unmasked.fa
+  GeneModel=fusarium
+  qsub $ProgDir/submit_augustus.sh $GeneModel $Assembly false
+```
+
 
 #Functional annotation
 
@@ -271,7 +279,6 @@ The following commands were used to do this:
   cat ../../phibase/v3.8/PHI_accessions.fa | grep '>' | cut -f1 | sed 's/>//g' | sed 's/\r//g' >> ../../phibase/v3.8/PHI_headers.csv
   printf "effect\n" > ../../phibase/v3.8/PHI_virulence.csv
   cat ../../phibase/v3.8/PHI_accessions.fa | grep '>' | cut -f1 | sed 's/>//g' | rev | cut -f1 -d '|' | rev  >> ../../phibase/v3.8/PHI_virulence.csv
-  paste -d '\t' ../../phibase/v3.8/PHI_headers.csv ../../phibase/v3.8/PHI_virulence.csv > ../../phibase/v3.8/PHI_headers_virulence.csv
   paste -d '\t' ../../phibase/v3.8/PHI_headers.csv ../../phibase/v3.8/PHI_virulence.csv ../neonectria_ditissima/analysis/blast_homology/spades/N.ditissima/N.ditissima_PHI_accessions.fa_homologs.csv | cut -f-3,1185- > analysis/blast_homology/neonectria_galligena/NG-R0905/NG-R0905_PHIbase.csv
   cat analysis/blast_homology/neonectria_galligena/NG-R0905/NG-R0905_PHIbase.csv | grep 'NODE_' | cut -f2 | sort | uniq -c | less
 ```
