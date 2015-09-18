@@ -309,3 +309,52 @@ final output was made for genbank submission:
   cp genome.sbt for_submission/N.ditissima_R0905.sbt
   tbl2asn -p for_submission -t for_submission/N.ditissima_R0905.sbt -r for_submission -M n -Z discrep -j "[organism=Neonectria ditissima] [strain=R09/05]"
 ```
+
+# Revision after submission to ncbi
+
+
+After submission to ncbi, the following issues were noted:
+* mRNA was not provided for the submission - This shall be addressed by
+re-running augustus with '--print_utr=on'
+* All annotations were marked as 'hypothetical protein', ncbi will not accept a
+submission with all genes listed as hypothetical protein - This shall be
+addressed by providing interproscan annotations for the proteins.
+
+## Step3 - Extract functional annotations
+
+Interproscan annotations were extracted using annie, the ANNotation Information
+Extractor.
+
+```bash
+  InterProTab=../../../neonectria_galligena/gene_pred/interproscan/spades/N.ditissima/N.ditissima_interproscan.tsv
+  SwissProtBlast=/home/groups/harrisonlab/project_files/neonectria_galligena/uniprot/uniprot_hits.tbl
+  SwissProtFasta=/home/groups/harrisonlab/uniprot/swissprot/uniprot_sprot.fasta
+  GffFile=../../gene_pred/augustus/N.ditissima/R0905_v2/R0905_v2_EMR_aug_preds.gff
+  GeneGff=GffMRNA.gff
+  cat $GffFile | sed 's/transcript/mRNA/g' > $GeneGff
+  ProgDir=/home/armita/prog/annie/genomeannotation-annie-c1e848b
+  python3 $ProgDir/annie.py -ipr $InterProTab -g $GeneGff -b $SwissProtBlast -db $SwissProtFasta -o annie_output.csv --fix_bad_products
+  ProgDir=~/git_repos/emr_repos/tools/genbank_submission/edit_tbl_file
+  $ProgDir/annie_corrector.py --inp_csv annie_output.csv --out_csv annie_corrected_output.csv
+
+```
+
+## Step4 - build .tbl file including functional annotation
+
+GAG (Genome Annotation Generator) was re-run including the functional annotation
+table from annie
+
+```bash
+  mkdir Nd_GAG_annotation
+  Assembly=../../assembly/spades/N.ditissima/R0905_v2/filtered_contigs/contigs_min_500bp_10x_filtered_renamed.fa
+  gag.py -f $Assembly -g GffMRNA.gff -a annie_corrected_output.csv -o Nd_GAG_annotation --fix_start_stop
+  gag.py -f $Assembly -g Nd_GAG_annotation/genome.gff -o Nd_GAG_annotation3 --fix_start_stop
+  sed -i 's/Dbxref/db_xref/g' Nd_GAG_annotation3/genome.tbl
+```
+tbl2asn was re-run following the addition of annotations.
+
+```bash
+  cp Nd_GAG_annotation/genome.fasta Nd_GAG_annotation3/genome.fsa
+  cp tbl2asn_out/genome2.sbt Nd_GAG_annotation3/genome.sbt
+  tbl2asn -p Nd_GAG_annotation3/. -t Nd_GAG_annotation/genome.sbt -r tmp -M n -Z discrep -j "[organism=Neonectria ditissima] [strain=R09/05]"
+```
