@@ -198,8 +198,8 @@ This model is from a closely related organism that is also plant pathogen.
 
 ```bash
   ProgDir=/home/armita/git_repos/emr_repos/tools/gene_prediction/augustus
-  Assembly=<PATH_TO_UNMASKED_ASSEMBLY.fa>
-  GeneModel=fusarium_graminearum
+  Assembly=../neonectria_ditissima/repeat_masked/spades/N.ditissima/R0905_v2/filtered_contigs_repmask/R0905_v2_contigs_unmasked.fa
+  GeneModel=fusarium
   qsub $ProgDir/submit_augustus.sh $GeneModel $Assembly false
 ```
 
@@ -225,6 +225,8 @@ running assembly on the longest assembled contig.
 
 #Functional annotation
 
+
+## A) Interproscan
 Interproscan was used to give gene models functional annotations. Annotation was
  run using the commands below:
 
@@ -238,8 +240,8 @@ redirected to a temporary output file named interproscan_submission.log .
 
 ```bash
   screen -a
-  ProgDir=/home/armita/git_repos/emr_repos/tools/seq_tools/feature_annotation/interproscan/
-  Genes=<PATH_TO_AUGUSTUS GENES.aa>
+  ProgDir=/home/armita/git_repos/emr_repos/tools/seq_tools/feature_annotation/interproscan
+  Genes=../neonectria_ditissima/gene_pred/augustus/spades/N.ditissima/N.ditissima_aug_out.aa
   $ProgDir/sub_interproscan.sh $Genes
 ```
 
@@ -247,9 +249,28 @@ Following interproscan annotation split files were combined using the following 
 
 ```bash
   ProgDir=/home/armita/git_repos/emr_repos/tools/seq_tools/feature_annotation/interproscan
-  PredGenes=<PATH_TO_AUGUSTUS GENES.aa>
-  InterProRaw=gene_pred/interproscan/<ORGANISM>/<STRAIN>/raw
+  PredGenes=../neonectria_ditissima/gene_pred/augustus/spades/N.ditissima/N.ditissima_aug_out.aa
+  InterProRaw=gene_pred/interproscan/spades/N.ditissima/raw
   $ProgDir/append_interpro.sh $PredGenes $InterProRaw
+```
+
+## B) SwissProt
+
+Putative ID's were given to genes with homology to SwissProt (the highly curated
+gene subset of UniProt). IDs were given by through BLASTP searches.
+
+```bash
+  qlogin
+  mkdir -p /home/groups/harrisonlab/project_files/neonectria_galligena/uniprot
+  cd /home/groups/harrisonlab/project_files/neonectria_galligena/uniprot
+  blastp \
+  -db /home/groups/harrisonlab/uniprot/swissprot/uniprot_sprot \
+  -query ../gene_pred/augustus/N.ditissima/R0905_v2/R0905_v2_EMR_aug_out.aa \
+  -out uniprot_hits.tbl  \
+  -evalue 10 \
+  -outfmt 6 \
+  -num_threads 16 \
+  -num_alignments 10
 ```
 
 #Genomic analysis
