@@ -348,7 +348,7 @@ table from annie
   mkdir Nd_GAG_annotation
   Assembly=../../assembly/spades/N.ditissima/R0905_v2/filtered_contigs/contigs_min_500bp_10x_filtered_renamed.fa
   gag.py -f $Assembly -g GffMRNA.gff -a annie_corrected_output.csv -o Nd_GAG_annotation --fix_start_stop
-  gag.py -f $Assembly -g Nd_GAG_annotation/genome.gff -o Nd_GAG_annotation3 --fix_start_stop
+  gag.py -f $Assembly -g Nd_GAG_annotation/genome.gff -o Nd_GAG_annotation3
   sed -i 's/Dbxref/db_xref/g' Nd_GAG_annotation3/genome.tbl
 ```
 tbl2asn was re-run following the addition of annotations.
@@ -368,15 +368,50 @@ gff file.
 https://www.biostars.org/p/101225/
 http://gmod.827538.n3.nabble.com/gff3-format-issue-correction-td4037428.html
 
-I am going to attempt to use genometools to build a correct gff3 input file.
+I am going to attempt to use genometools to build a correct gff3 input file...
+
+This proved unsuccessful: Genometools renames and re-orders features in the
+gff file. THis is not done in a thoughtful manner and will complicate
+downstream analysis.
+
+<!-- ```bash
+  GffFile=Nd_GAG_annotation/genome.gff
+  # gt gff3 -tidy -retainids -checkids -addids -o tmp.gff -force $GffFile
+  cat $GffFile \
+  | gt gff3 -tidy -retainids \
+  | gt dupfeat -dest exon -source CDS \
+  # | gt dupfeat -dest exon -source three_prime_UTR \
+  # | gt dupfeat -dest exon -source five_prime_UTR \
+  # | gt mergefeat \
+    -o tmp.gff -force
+  # Assembly=../../assembly/spades/N.ditissima/R0905_v2/filtered_contigs/contigs_min_500bp_10x_filtered_renamed.fa
+  # gag.py -f $Assembly -g tmp.gff -o Nd_GAG_annotation4 --fix_start_stop
+``` -->
+
+As such, parsers were written in perl and python to correct gff files. Biopython
+was avoided as it will run slowly. The gff modules of bioperl either expected
+all features to already be correctly formatted or missed those features that
+were incorrectly formatted.
 
 ```bash
-  $GffFile=Nd_GAG_annotation/genome.gff
-  cat $GffFile \
-  | gt dupfeat -dest exon -source CDS \
-  | gt dupfeat -dest exon -source three_prime_UTR \
-  | gt dupfeat -dest exon -source five_prime_UTR \
-  | gt mergefeat \
+  GffFile=../../gene_pred/augustus/N.ditissima/R0905_v2/R0905_v2_EMR_aug_preds.gff
+  cat $GffFile | sed 's/transcript/mRNA/g' > GffMRNA.gff
+  ProgDir=~/git_repos/emr_repos/tools/genbank_submission/generate_tbl_file
+  $ProgDir/exon_generator.pl GffMRNA.gff > corrected_exons.gff
+  $ProgDir/gff_add_id.py --inp_gff corrected_exons.gff --out_gff corrected_exons_id.gff
+  Assembly=../../assembly/spades/N.ditissima/R0905_v2/filtered_contigs/contigs_min_500bp_10x_filtered_renamed.fa
+  # gag.py -f $Assembly -g corrected_exons_id.gff -o Nd_GAG_corrected_annotation
 
-    | gt gff3 -retainids -sort -tidy -o your.new.gff3
+  gag.py -f $Assembly -g corrected_exons_id.gff -a annie_corrected_output.csv -o Nd_GAG_corrected_annotation
+  sed -i 's/Dbxref/db_xref/g' Nd_GAG_corrected_annotation/genome.tbl
+  cp Nd_GAG_annotation/genome.fasta Nd_GAG_corrected_annotation/genome.fsa
+  cp tbl2asn_out/genome.sbt Nd_GAG_corrected_annotation/genome.sbt
+  tbl2asn -p Nd_GAG_corrected_annotation/. -t Nd_GAG_corrected_annotation/genome.sbt -r tmp -M n -Z discrep -j "[organism=Neonectria ditissima] [strain=R09/05]"
+  mkdir -p Nd_GAG_corrected_annotation2
+  ProgDir=~/git_repos/emr_repos/tools/genbank_submission/edit_tbl_file
+  $ProgDir/ncbi_tbl_corrector.py --inp_tbl Nd_GAG_corrected_annotation/genome.tbl --inp_val tmp/genome.val --edits stop pseudo --out_tbl Nd_GAG_corrected_annotation2/genome.tbl
+  mkdir -p tmp2
+  cp Nd_GAG_corrected_annotation/genome.fsa Nd_GAG_corrected_annotation2/genome.fsa
+  cp Nd_GAG_corrected_annotation/genome.sbt Nd_GAG_corrected_annotation2/genome.sbt
+  tbl2asn -p Nd_GAG_corrected_annotation2/. -t Nd_GAG_corrected_annotation2/genome.sbt -r tmp2 -M n -Z discrep -j "[organism=Neonectria ditissima] [strain=R09/05]"
 ```
