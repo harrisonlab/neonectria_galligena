@@ -358,3 +358,25 @@ tbl2asn was re-run following the addition of annotations.
   cp tbl2asn_out/genome2.sbt Nd_GAG_annotation3/genome.sbt
   tbl2asn -p Nd_GAG_annotation3/. -t Nd_GAG_annotation/genome.sbt -r tmp -M n -Z discrep -j "[organism=Neonectria ditissima] [strain=R09/05]"
 ```
+
+
+## Step 5 - Ensure mRNA is contained in the .tbl file
+
+The final .tbl file does not contain mRNA features. From the following forum
+threads I suspect that this is due to exon features not being represented in the
+gff file.
+https://www.biostars.org/p/101225/
+http://gmod.827538.n3.nabble.com/gff3-format-issue-correction-td4037428.html
+
+I am going to attempt to use genometools to build a correct gff3 input file.
+
+```bash
+  $GffFile=Nd_GAG_annotation/genome.gff
+  cat $GffFile \
+  | gt dupfeat -dest exon -source CDS \
+  | gt dupfeat -dest exon -source three_prime_UTR \
+  | gt dupfeat -dest exon -source five_prime_UTR \
+  | gt mergefeat \
+
+    | gt gff3 -retainids -sort -tidy -o your.new.gff3
+```
