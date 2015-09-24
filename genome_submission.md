@@ -18,9 +18,6 @@ mkdir -p collaboration/genome_submission
 
 ```
 
-# Step 1 - Making a template for tbl2asn
-
-
 The genbank submission template tool was used at:
 http://www.ncbi.nlm.nih.gov/WebSub/template.cgi
 
@@ -418,4 +415,47 @@ were incorrectly formatted.
   cp Nd_GAG_corrected_annotation/genome.fsa Nd_GAG_corrected_annotation2/genome.fsa
   cp Nd_GAG_corrected_annotation/genome.sbt Nd_GAG_corrected_annotation2/genome.sbt
   tbl2asn -p Nd_GAG_corrected_annotation2/. -t Nd_GAG_corrected_annotation2/genome.sbt -r tmp2 -M n -Z discrep -j "[organism=Neonectria ditissima] [strain=R09/05]"
+```
+
+# Final Submission
+
+These commands were used in the final submission of the N. ditissima genome:
+
+
+Interproscan and Swissprot annotations were extracted using annie, the
+ANNotation Information Extractor.
+
+```bash
+  InterProTab=../../../neonectria_galligena/gene_pred/interproscan/spades/N.ditissima/N.ditissima_interproscan.tsv
+  SwissProtBlast=/home/groups/harrisonlab/project_files/neonectria_galligena/uniprot/uniprot_hits.tbl
+  SwissProtFasta=/home/groups/harrisonlab/uniprot/swissprot/uniprot_sprot.fasta
+  GffFile=../../gene_pred/augustus/N.ditissima/R0905_v2/R0905_v2_EMR_aug_preds.gff
+  ProgDir=/home/armita/prog/annie/genomeannotation-annie-c1e848b
+  python3 $ProgDir/annie.py -ipr $InterProTab -g $GeneGff -b $SwissProtBlast -db $SwissProtFasta -o annie_output.csv --fix_bad_products
+  ProgDir=~/git_repos/emr_repos/tools/genbank_submission/edit_tbl_file
+  $ProgDir/annie_corrector.py --inp_csv annie_output.csv --out_csv annie_corrected_output.csv
+```
+
+```bash
+  GffFile=../../gene_pred/augustus/N.ditissima/R0905_v2/R0905_v2_EMR_aug_preds.gff
+  cat $GffFile | sed 's/transcript/mRNA/g' > GffMRNA.gff
+  ProgDir=~/git_repos/emr_repos/tools/genbank_submission/generate_tbl_file
+  $ProgDir/exon_generator.pl GffMRNA.gff > corrected_exons.gff
+  $ProgDir/gff_add_id.py --inp_gff corrected_exons.gff --out_gff corrected_exons_id.gff
+  Assembly=../../assembly/spades/N.ditissima/R0905_v2/filtered_contigs/contigs_min_500bp_10x_filtered_renamed.fa
+  gag.py -f $Assembly -g corrected_exons_id.gff -a annie_corrected_output.csv -o Nd_GAG_corrected_annotation
+  sed -i 's/Dbxref/db_xref/g' Nd_GAG_corrected_annotation/genome.tbl
+  cp Nd_GAG_annotation/genome.fasta Nd_GAG_corrected_annotation/genome.fsa
+  cp tbl2asn_out/genome.sbt Nd_GAG_corrected_annotation/genome.sbt
+  tbl2asn -p Nd_GAG_corrected_annotation/. -t Nd_GAG_corrected_annotation/genome.sbt -r tmp -M n -Z discrep -j "[organism=Neonectria ditissima] [strain=R09/05]"
+  mkdir -p Nd_GAG_corrected_annotation2
+  ProgDir=~/git_repos/emr_repos/tools/genbank_submission/edit_tbl_file
+  GeneSource='ab initio prediction:Augustus:3.1'
+  IDSource='similar to AA sequence:SwissProt:2015_09'
+  $ProgDir/ncbi_tbl_corrector.py --inp_tbl Nd_GAG_corrected_annotation/genome.tbl --inp_val tmp/genome.val --locus_tag AK830 --lab_id ArmitageEMR --gene_id remove --add_inference "$GeneSource" "$IDSource" --edits stop pseudo unknown_UTR --out_tbl Nd_GAG_corrected_annotation2/genome.tbl
+  mkdir -p tmp2
+  cp Nd_GAG_corrected_annotation/genome.fsa Nd_GAG_corrected_annotation2/genome.fsa
+  cp Nd_GAG_corrected_annotation/genome.sbt Nd_GAG_corrected_annotation2/genome.sbt
+  tbl2asn -p Nd_GAG_corrected_annotation2/. -t Nd_GAG_corrected_annotation2/genome.sbt -r final_submission -M n -Z discrep -j "[organism=Neonectria ditissima] [strain=R09/05]"
+  cp final_submission/genome.sqn final_submission/Nd_Gomez_2015.sqn
 ```
