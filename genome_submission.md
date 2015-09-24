@@ -399,9 +399,11 @@ were incorrectly formatted.
   ProgDir=~/git_repos/emr_repos/tools/genbank_submission/generate_tbl_file
   $ProgDir/exon_generator.pl GffMRNA.gff > corrected_exons.gff
   $ProgDir/gff_add_id.py --inp_gff corrected_exons.gff --out_gff corrected_exons_id.gff
+  # $ProgDir/gff_correct_mRNA_boundaries.py corrected_exons_id.gff > corrected_exons_id_mRNA.gff
   Assembly=../../assembly/spades/N.ditissima/R0905_v2/filtered_contigs/contigs_min_500bp_10x_filtered_renamed.fa
   # gag.py -f $Assembly -g corrected_exons_id.gff -o Nd_GAG_corrected_annotation
 
+  # gag.py -f $Assembly -g corrected_exons_id_mRNA.gff -a annie_corrected_output.csv -o Nd_GAG_corrected_annotation
   gag.py -f $Assembly -g corrected_exons_id.gff -a annie_corrected_output.csv -o Nd_GAG_corrected_annotation
   sed -i 's/Dbxref/db_xref/g' Nd_GAG_corrected_annotation/genome.tbl
   cp Nd_GAG_annotation/genome.fasta Nd_GAG_corrected_annotation/genome.fsa
@@ -409,7 +411,7 @@ were incorrectly formatted.
   tbl2asn -p Nd_GAG_corrected_annotation/. -t Nd_GAG_corrected_annotation/genome.sbt -r tmp -M n -Z discrep -j "[organism=Neonectria ditissima] [strain=R09/05]"
   mkdir -p Nd_GAG_corrected_annotation2
   ProgDir=~/git_repos/emr_repos/tools/genbank_submission/edit_tbl_file
-  $ProgDir/ncbi_tbl_corrector.py --inp_tbl Nd_GAG_corrected_annotation/genome.tbl --inp_val tmp/genome.val --edits stop pseudo --out_tbl Nd_GAG_corrected_annotation2/genome.tbl
+  $ProgDir/ncbi_tbl_corrector.py --inp_tbl Nd_GAG_corrected_annotation/genome.tbl --inp_val tmp/genome.val --edits stop pseudo unknown_UTR --out_tbl Nd_GAG_corrected_annotation2/genome.tbl
   mkdir -p tmp2
   cp Nd_GAG_corrected_annotation/genome.fsa Nd_GAG_corrected_annotation2/genome.fsa
   cp Nd_GAG_corrected_annotation/genome.sbt Nd_GAG_corrected_annotation2/genome.sbt
