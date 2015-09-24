@@ -413,7 +413,7 @@ were incorrectly formatted.
   ProgDir=~/git_repos/emr_repos/tools/genbank_submission/edit_tbl_file
   GeneSource='ab initio prediction:Augustus:3.1'
   IDSource='similar to AA sequence:SwissProt:2015_09'
-  $ProgDir/ncbi_tbl_corrector.py --inp_tbl Nd_GAG_corrected_annotation/genome.tbl --inp_val tmp/genome.val --locus_tag AK830 --lab_id ArmitageEMR --gene_id remove --add_inference $GeneSource $IDSource --edits stop pseudo unknown_UTR --out_tbl Nd_GAG_corrected_annotation2/genome.tbl
+  $ProgDir/ncbi_tbl_corrector.py --inp_tbl Nd_GAG_corrected_annotation/genome.tbl --inp_val tmp/genome.val --locus_tag AK830 --lab_id ArmitageEMR --gene_id remove --add_inference "$GeneSource" "$IDSource" --edits stop pseudo unknown_UTR --out_tbl Nd_GAG_corrected_annotation2/genome.tbl
   mkdir -p tmp2
   cp Nd_GAG_corrected_annotation/genome.fsa Nd_GAG_corrected_annotation2/genome.fsa
   cp Nd_GAG_corrected_annotation/genome.sbt Nd_GAG_corrected_annotation2/genome.sbt
