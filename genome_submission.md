@@ -411,7 +411,9 @@ were incorrectly formatted.
   tbl2asn -p Nd_GAG_corrected_annotation/. -t Nd_GAG_corrected_annotation/genome.sbt -r tmp -M n -Z discrep -j "[organism=Neonectria ditissima] [strain=R09/05]"
   mkdir -p Nd_GAG_corrected_annotation2
   ProgDir=~/git_repos/emr_repos/tools/genbank_submission/edit_tbl_file
-  $ProgDir/ncbi_tbl_corrector.py --inp_tbl Nd_GAG_corrected_annotation/genome.tbl --inp_val tmp/genome.val --edits stop pseudo unknown_UTR --out_tbl Nd_GAG_corrected_annotation2/genome.tbl
+  GeneSource='ab initio prediction:Augustus:3.1'
+  IDSource='similar to AA sequence:SwissProt:2015_09'
+  $ProgDir/ncbi_tbl_corrector.py --inp_tbl Nd_GAG_corrected_annotation/genome.tbl --inp_val tmp/genome.val --locus_tag AK830 --lab_id ArmitageEMR --gene_id remove --add_inference $GeneSource $IDSource --edits stop pseudo unknown_UTR --out_tbl Nd_GAG_corrected_annotation2/genome.tbl
   mkdir -p tmp2
   cp Nd_GAG_corrected_annotation/genome.fsa Nd_GAG_corrected_annotation2/genome.fsa
   cp Nd_GAG_corrected_annotation/genome.sbt Nd_GAG_corrected_annotation2/genome.sbt
