@@ -261,13 +261,15 @@ gene subset of UniProt). IDs were given by through BLASTP searches.
 
 ```bash
   qlogin
-  mkdir -p /home/groups/harrisonlab/project_files/neonectria_galligena/uniprot
-  cd /home/groups/harrisonlab/project_files/neonectria_galligena/uniprot
+  ProjDir=/home/groups/harrisonlab/project_files/neonectria_galligena
+  cd $ProjDir
+  OutDir=$ProjDir/gene_pred/uniprot/N.ditissima/R0905
+  mkdir -p $OutDir
   blastp \
   -db /home/groups/harrisonlab/uniprot/swissprot/uniprot_sprot \
-  -query ../gene_pred/augustus/N.ditissima/R0905_v2/R0905_v2_EMR_aug_out.aa \
-  -out uniprot_hits.tbl  \
-  -evalue 10 \
+  -query $ProjDir/gene_pred/augustus/N.ditissima/R0905_v2/R0905_v2_EMR_aug_out.aa \
+  -out $OutDir/swissprot_v2015_09_hits.tbl  \
+  -evalue 1e-100 \
   -outfmt 6 \
   -num_threads 16 \
   -num_alignments 10
